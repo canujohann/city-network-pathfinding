@@ -238,7 +238,7 @@ function App() {
             onClick={handleMapClick}
             className="relative flex-grow border border-gray-300 rounded-lg overflow-hidden"
             style={{
-              backgroundImage: isSchematicView ? 'none' : 'url(https://images.unsplash.com/photo-1526778548025-fa2f459cd5ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80)',
+              backgroundImage: isSchematicView ? 'none' : 'url(https://images.fineartamerica.com/images-medium-large-5/1-united-states-satellite-image-science-photo-library.jpg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               cursor: isAddingCity ? 'crosshair' : 'default'
