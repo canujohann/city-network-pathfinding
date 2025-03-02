@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MapPin, Navigation, RotateCw, Plus, Minus, Map as MapIcon, GitCommit } from 'lucide-react';
+import React, { useState, useRef, useCallback } from 'react';
+import { Navigation, Plus, Minus, Map as MapIcon } from 'lucide-react';
 import { CityNetwork } from './components/CityNetwork';
 import { City, Road, dijkstra, Step } from './utils/pathfinding';
 import { AlgorithmSteps } from './components/AlgorithmSteps';
@@ -53,6 +53,12 @@ function App() {
 
   const networkRef = useRef<HTMLDivElement>(null);
 
+  /**
+  * Handles the click event on a city in the map. If the user is in "add road" mode, 
+  * it either sets the start city for the new road or adds the new road between the start and end cities. 
+  * If the user is not in "add road" mode, it sets the start or end city for the route calculation, 
+  * or resets the route if a new start city is selected.
+  **/
   const handleCityClick = useCallback((city: City) => {
     if (isAddingRoad) {
       if (!roadStart) {
@@ -87,6 +93,13 @@ function App() {
     }
   }, [isAddingRoad, roadStart, newRoadDistance, startCity, endCity]);
 
+  /**
+   * Handles the click event on the map when the user is in "add city" mode.
+   * Calculates the position of the new city based on the click event coordinates,
+   * creates a new city object, and adds it to the list of cities.
+   * 
+   * @param e - The React mouse event object containing the click coordinates.
+   */
   const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!isAddingCity || !networkRef.current) return;
 
@@ -107,6 +120,10 @@ function App() {
     setNewCityName('');
   }, [isAddingCity, cities, newCityName]);
 
+  /**
+   * Calculates the shortest path between the start and end cities using the Dijkstra algorithm.
+   * Updates the state with the calculated path, total distance, and algorithm steps.
+   */
   const calculateRoute = useCallback(() => {
     if (!startCity || !endCity) return;
 
@@ -123,6 +140,10 @@ function App() {
     setCurrentStep(-1);
   }, [startCity, endCity, cities, roads]);
 
+  /**
+   * Resets the current route selection, clearing the start and end cities, path, total distance,
+   * algorithm steps, and hiding the step-by-step display.
+   */
   const resetSelection = useCallback(() => {
     setStartCity(null);
     setEndCity(null);
@@ -133,18 +154,32 @@ function App() {
     setShowSteps(false);
   }, []);
 
+  /**
+   * Toggles the view between schematic and geographic modes.
+   */
   const toggleView = useCallback(() => {
     setIsSchematicView(prev => !prev);
   }, []);
 
+  /**
+   * Increases the zoom level of the map, up to a maximum of 2.
+   */
   const handleZoomIn = useCallback(() => {
     setZoom(prev => Math.min(prev + 0.2, 2));
   }, []);
 
+  /**
+   * Decreases the zoom level of the map, down to a minimum of 0.5.
+   */
   const handleZoomOut = useCallback(() => {
     setZoom(prev => Math.max(prev - 0.2, 0.5));
   }, []);
 
+  /**
+   * Starts the process of adding a new city to the network.
+   * This function sets the `isAddingCity` state to true, `isAddingRoad` state to false,
+   * and clears the `roadStart` state.
+   */
   const startAddingCity = useCallback(() => {
     setIsAddingCity(true);
     setIsAddingRoad(false);
@@ -173,20 +208,20 @@ function App() {
             <Navigation className="mr-2" /> City Network Pathfinder
           </h1>
           <div className="flex space-x-4">
-            <button 
+            <button
               onClick={toggleView}
               className="flex items-center bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded"
             >
               <MapIcon className="mr-1" size={16} />
               {isSchematicView ? 'Geographic View' : 'Schematic View'}
             </button>
-            <button 
+            <button
               onClick={handleZoomIn}
               className="bg-blue-700 hover:bg-blue-800 px-2 py-1 rounded"
             >
               <Plus size={16} />
             </button>
-            <button 
+            <button
               onClick={handleZoomOut}
               className="bg-blue-700 hover:bg-blue-800 px-2 py-1 rounded"
             >
@@ -198,11 +233,11 @@ function App() {
 
       <div className="container mx-auto p-4 flex flex-col md:flex-row flex-grow">
         <div className="md:w-3/4 bg-white rounded-lg shadow-md p-4 mb-4 md:mb-0 md:mr-4 flex flex-col">
-          <div 
+          <div
             ref={networkRef}
             onClick={handleMapClick}
             className="relative flex-grow border border-gray-300 rounded-lg overflow-hidden"
-            style={{ 
+            style={{
               backgroundImage: isSchematicView ? 'none' : 'url(https://images.unsplash.com/photo-1526778548025-fa2f459cd5ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
@@ -213,7 +248,7 @@ function App() {
               {isSchematicView && (
                 <div className="absolute inset-0 bg-blue-50 opacity-50"></div>
               )}
-              <CityNetwork 
+              <CityNetwork
                 cities={cities}
                 roads={roads}
                 startCity={startCity}
@@ -237,7 +272,7 @@ function App() {
                 onChange={(e) => setNewCityName(e.target.value)}
                 className="flex-grow p-2 border rounded mr-2"
               />
-              <button 
+              <button
                 onClick={cancelAdding}
                 className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
               >
@@ -262,7 +297,7 @@ function App() {
                   />
                 </>
               )}
-              <button 
+              <button
                 onClick={cancelAdding}
                 className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
               >
@@ -273,7 +308,7 @@ function App() {
         </div>
 
         <div className="md:w-1/4 flex flex-col">
-          <ControlPanel 
+          <ControlPanel
             startCity={startCity}
             endCity={endCity}
             calculateRoute={calculateRoute}
@@ -287,7 +322,7 @@ function App() {
           />
 
           {path.length > 0 && (
-            <RouteInfo 
+            <RouteInfo
               cities={cities}
               path={path}
               totalDistance={totalDistance}
@@ -295,7 +330,7 @@ function App() {
           )}
 
           {showSteps && algorithmSteps.length > 0 && (
-            <AlgorithmSteps 
+            <AlgorithmSteps
               steps={algorithmSteps}
               currentStep={currentStep}
               setCurrentStep={setCurrentStep}
